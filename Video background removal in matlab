@@ -1,0 +1,38 @@
+% Read the video
+videoFile = '/MATLAB Drive/speckle_videos/input_video.mp4';
+videoReader = VideoReader(videoFile);
+
+% Create a VideoWriter object to write the output video
+outputVideoFile = '/MATLAB Drive/speckle_videos/output_video.mp4';
+videoWriter = VideoWriter(outputVideoFile, 'MPEG-4');
+open(videoWriter);
+
+% Define the threshold value and background color
+threshold = 159;
+bgcolor = [0 0 0]; % black
+
+% Process each frame
+while hasFrame(videoReader)
+    % Read the next frame
+    frame = readFrame(videoReader);
+
+    % Convert frame to grayscale if it is not already
+    if size(frame, 3) == 3
+        frame = rgb2gray(frame);
+    end
+
+    % Basic thresholding to select objects
+    mk = frame > threshold;
+
+    % Fill any holes in objects
+    mk = imfill(mk, 'holes');
+
+    % Add black overlay on background region
+    outpict = imoverlay(frame, ~mk, bgcolor);
+
+    % Write the processed frame to the output video
+    writeVideo(videoWriter, outpict);
+end
+
+% Close the VideoWriter object
+close(videoWriter);
