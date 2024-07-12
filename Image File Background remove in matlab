@@ -1,0 +1,38 @@
+% Define the input and output directories
+inputDir = '/MATLAB Drive/speckle_images_grey/';
+outputDir = '/MATLAB Drive/speckle_images_grey/processed/';
+
+% Create the output directory if it doesn't exist
+if ~exist(outputDir, 'dir')
+    mkdir(outputDir);
+end
+
+% Get a list of all image files in the input directory
+imageFiles = dir(fullfile(inputDir, '*.jpg'));
+
+% Loop through each image file
+for k = 1:length(imageFiles)
+    % Read the image
+    inputFile = fullfile(inputDir, imageFiles(k).name);
+    A = imread(inputFile);
+
+    % Basic thresholding to select objects
+    mk = A > 159;
+
+    % Fill any holes in objects
+    mk = imfill(mk, 'holes');
+
+    % Add black overlay on background region
+    bgcolor = [0 0 0]; % black
+    outpict = imoverlay(A, ~mk, bgcolor);
+
+    % Display the resulting image (optional)
+    % imshow(outpict)
+
+    % Save the output image to a new file
+    [~, name, ext] = fileparts(imageFiles(k).name);
+    outputFile = fullfile(outputDir, [name '_with_black_background' ext]);
+    imwrite(outpict, outputFile);
+end
+
+disp('Processing complete.');
